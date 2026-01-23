@@ -2,15 +2,16 @@
 # clase que implemena el movimiento del cuello (3 servos) y 
 # y del display de los ojos.
 #
-
+import threading 
 from serial import Serial
 import time
 from easing_functions import *
 import numpy as np
 
-class Head:
+class Head(threading.Thread):
     def __init__(self):
         print( "Head - ctor()" )
+        super().__init__()
         d = 8
         self.t = np.arange(0, d, 1)
         #a = BounceEaseInOut(start = 0, end = 10, duration = d )
@@ -25,10 +26,52 @@ class Head:
         self.ser = None
         try:
             self.ser = Serial(port, baudrate, timeout=1) 
-            print("Connected!")
+            print("Head::serial Connected!")
         except Exception as e:
-            print("Serial.error")  
+            print("Head::Serial.error")  
             print(e)
+
+        self.gesture = None
+        self.data = None
+        self.paused = threading.Event()
+        self.paused.clear()
+        self.start_event = threading.Event()
+        self.done_event = threading.Event()
+        self.lock = threading.Lock()
+        self.active = True
+        self.start()
+
+    def act(self, id, data):
+        if self.lock.acquire(timeout=0.5):
+            try:
+                self.gesture = id
+                self.data = int(data)
+            finally:
+                self.lock.release()
+    #        self.paused.clear()
+
+    def run(self):
+        while self.active:
+            self.start_event.wait()
+            self.done_event.clear()
+            if self.lock.acquire(timeout=0.5):
+                try:
+                    gesture = self.gesture
+                    data = self.data
+                    print("Head::running gesture id: %s, param:%d" %(gesture, data))
+                finally:
+                    self.lock.release()
+            self.parse_gesture(gesture, data)
+#                if self.paused.is_set():
+#                    break
+#            self.paused.clear()
+            self.done_event.set()
+            self.start_event.clear()
+
+    def pause(self):
+        self.paused.set()
+        self.gesture_queue = []
+        print("Head::pause()")
 
     def parse_gesture(self, gesture, data):
         if gesture == "PAN":
@@ -60,7 +103,7 @@ class Head:
         elif gesture == "NO":
             self.gesture_no(data, 2)
         else:
-            print("Gesture not found")
+            print("Head::Gesture not found")
 
     def serial_send(self, cmd, value):
         self.send_msg(cmd, value)   
@@ -175,15 +218,18 @@ class Head:
 
     def send_msg(self, cmd, value):
         order = cmd + "," + str(value) + '\r'  # Format "WORD,value"
-        print(f"Sent: {order.strip()}")
+#        print(f"Sent: {order.strip()}")
         if self.ser:
             self.ser.write(order.encode())  # Send the order
             rpta = self.ser.readline()
-            print(f"Head says:{rpta}")
+#            print(f"Head rta:{rpta}")
             self.ser.flush()
         else:
             print("HEAD not connected")
 
-    def exit(self):
-        print("Closing Serial...")
+    def close(self):
+        print("Head::close()")
+        self.active = False
+        self.paused.set()
+#        self.join()
         self.ser.close()

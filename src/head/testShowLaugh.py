@@ -36,4 +36,4 @@ time.sleep(tau)
 head.gesture_neutral(0)
 time.sleep(tau)
 
-head.exit()
+head.close()

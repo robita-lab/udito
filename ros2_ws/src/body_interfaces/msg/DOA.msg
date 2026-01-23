@@ -1,2 +1,3 @@
-int64 angle
-int64 vad
+int16 angle
+int16 vad
+bool user_speaking

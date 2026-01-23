@@ -33,30 +33,34 @@ class StTPublisher(Node):
         super().__init__('stt_publisher')
         self.doa_pub = self.create_publisher(DOA, 'doa_topic', 10)
         self.stt_pub = self.create_publisher(Speech2Text, 'stt_topic', 10)
-        self.stt = StT()
         self.doa_msg = DOA()
         self.stt_msg = Speech2Text()
+        self.stt = StT(self.result_callback, self.user_speaking)
         if self.stt.respeaker:
-            self.stt.respeaker.set_vad_threshold( 70 )
             self.get_logger().info('Mic found')
-        timer_period = 0.001  # seconds
-#        self.timer = self.create_timer(timer_period, self.tick)
-        self.tick()
-#TODO: Unirlo bien con la clase StT y el bucle de tomar audio y tal
-    def tick(self):
-        while True:
-            result = self.stt.tick()
-            if self.stt.user_speaking:
-                self.doa_msg.angle = self.stt.respeaker.direction
-                self.doa_msg.vad = 1
-                self.doa_pub.publish(self.doa_msg)
-                self.get_logger().info('publishing.angle: "%d", vad:%d' %(self.doa_msg.angle, self.doa_msg.vad))  
+            self.stt.respeaker.set_vad_threshold( 50 )
+        else:
+            self.get_logger().error('Mic NOT found')
+        self.stt.start()
 
-            if result:
-                self.stt_msg.text = result['results'][0]['alternatives'][0]['transcript'].strip()
-                self.stt_msg.confidence = result['results'][0]['alternatives'][0]['confidence']
-                self.stt_pub.publish(self.stt_msg)
-                self.get_logger().info('publishing text:%s,  conf:%f' %(self.stt_msg.text, self.stt_msg.confidence))
+    def result_callback(self, result):
+            try:
+                if len(result['results']) > 0:
+                    self.stt_msg.text = result['results'][0]['alternatives'][0]['transcript'].strip()
+                    self.stt_msg.confidence = result['results'][0]['alternatives'][0]['confidence']
+                    self.stt_pub.publish(self.stt_msg)
+                    self.get_logger().info('publishing text: %s,  conf:%f' %(self.stt_msg.text, self.stt_msg.confidence))
+            except:
+                self.get_logger().info('no result')  
+                return None
+
+    def user_speaking(self, flag):
+        self.doa_msg.angle = self.stt.respeaker.direction
+        self.doa_msg.vad = 1
+        self.doa_msg.user_speaking = flag
+        self.doa_pub.publish(self.doa_msg)
+        self.get_logger().info('publishing user_speaking: "%d", angle:"%d", vad:%d' %(self.doa_msg.user_speaking, self.doa_msg.angle, self.doa_msg.vad))  
+
 
     def close(self):
         self.stt.close()
@@ -65,9 +69,12 @@ def main(args=None):
     rclpy.init(args=args)
 
     stt_pub = StTPublisher()
-    rclpy.spin(stt_pub)
-
-    stt_pub.close()
+    try:
+        rclpy.spin(stt_pub)
+    except KeyboardInterrupt:
+        print("StT::⏹️ Detenido por el usuario.")
+    finally:
+        stt_pub.close()
     stt_pub.destroy_node()
     rclpy.shutdown()
 

@@ -18,6 +18,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/SequencerMsg.msg"
   "msg/BehaviorMsg.msg"
   "msg/Speech2Text.msg"
+  "msg/RobotSpeaking.msg"
   "srv/HeadMove.srv"
   "srv/Text2Speech.srv"
   "srv/Behavior.srv"

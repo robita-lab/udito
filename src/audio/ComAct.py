@@ -2,29 +2,51 @@
 # 
 import time
 import threading
-from TtS import TtS
 from playsound import playsound
 
+from TtS import TtS
 
 import sys
 sys.path.append("/home/udito/OneDrive/UDITO/udito/src/head")
 from headClass import Head
 
+# TODO: Hacer la cola de texto en esta clase y no en TtS para poder coordinar mejor gestos y voz
+
 class ComAct:
-    def __init__(self):
+    def __init__(self, robot_speaking_callback = None):
         print("ComAct::ctor")
-        self.tts = TtS()
         self.head = Head()
-        self.tts_thread = threading.Thread(target = self.tts_thread_function, args=(1,))
-        self.gesture_thread = threading.Thread(target = self.gesture_thread_function, args=(1,))
-        self.audio_data = self.tts.get_audio_data("hola")
-        self.audio_data_len = len(self.audio_data)
-        self.text = ""
-        self.gesture = ""
-        self.gesture_parameter = 0
+        self.tts = TtS(robot_speaking_callback)
+        #TODO: esperar a los constructoras y hebras activas
+        time.sleep(3)
+#        print("ComAct::waiting Head...")
+#        while self.head.active
+
+    def pause(self):
+        self.tts.pause()
+        self.head.pause()
+
+    def show_gesture(self, gesture, gesture_parameter):
+        self.head.start_event.set()
+#        self.tts.start_event.set()
+        self.head.act(gesture, gesture_parameter)
+        self.head.done_event.wait()
+#        self.tts.done_event.wait()
+
+    def speak(self, text):
+        self.speak(text, "NEUTRAL", 5)
+
+    def speak(self, text, gesture = "NEUTRAL", gesture_parameter = 5):
+        self.tts.speak(text)
+        self.head.act(gesture, gesture_parameter)
+
+        self.tts.activate()
+        self.head.start_event.set()
+
+        self.tts.wait_until_done()
+        self.head.done_event.wait()
 
     def non_verbal_expression(self, gesture, gesture_parameter):
-        self.gesture = gesture
         sound_file = "./samples/whistle-short-01.wav"
         if gesture == "ANGRY":
             sound_file = "./samples/angry_lion.wav"
@@ -49,44 +71,10 @@ class ComAct:
         elif gesture == "NO":
             sound_file = "./samples/SnappyR2D2.mp3"
 
-        self.gesture_parameter = gesture_parameter
-        self.head.parse_gesture(self.gesture, self.gesture_parameter)
+        self.head.act(gesture, gesture_parameter)
         playsound(sound_file)
 
-    def show_gesture(self, gesture, gesture_parameter):
-        self.gesture = gesture
-        self.gesture_parameter = gesture_parameter
-        self.head.parse_gesture(self.gesture, self.gesture_parameter)
-
-    def speak(self, text):
-        self.speak(text, "NEUTRAL", 5)
-
-    def speak(self, text, gesture = "NEUTRAL", gesture_parameter = 5):
-        self.text = text
-        self.gesture = gesture
-        self.gesture_parameter = gesture_parameter
-        self.head.parse_gesture(self.gesture, self.gesture_parameter)
-        if text != "":
-            self.audio_data = self.tts.get_audio_data(text)
-            self.audio_data_len = len(self.audio_data)
-            print(f"audio_data_len: {self.audio_data_len}")
-            self.tts.write_audio_data(self.audio_data)
-#        time.sleep(self.audio_data_len/11000)   
-
-#        self.tts_thread.start()
-#        self.gesture_thread.start()
-#        self.gesture_thread.join()
-
-    def tts_thread_function(self, name): 
-        self.tts.write_audio_data(self.audio_data)
-
-    def gesture_thread_function(self, name):
-        self.head.parse_gesture(self.gesture, self.gesture_parameter)
-        self.tts_thread.join()
-
-    def shut_up(self):
-        self.tts.audio_device.stop_stream()
-
     def close(self):
-        print("ComAct::dtor")
-        self.tts.audio_device.close()
+        print("ComAct::close")
+        self.tts.close()
+        self.head.close()

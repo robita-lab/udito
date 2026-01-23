@@ -12,8 +12,9 @@ headers = {
 }
 
 payload = {
+    "model_id": "meta-llama/llama-3-3-70b-instruct",
 #    "model_id": "ibm/granite-13b-chat-v2",  # o "mistralai/mixtral-8x7b-instruct-v0.1"
-    "model_id": "ibm/granite-3-8b-instruct",  # o "mistralai/mixtral-8x7b-instruct-v0.1"
+#    "model_id": "ibm/granite-3-8b-instruct",  # o "mistralai/mixtral-8x7b-instruct-v0.1"
     "input": "Explícame qué es la fotosíntesis en términos simples.",
     "parameters": {
         "decoding_method": "greedy",
@@ -23,4 +24,5 @@ payload = {
 }
 
 response = requests.post(url, headers=headers, json=payload)
-print(json.dumps(response.json(), indent=2))
+#print(json.dumps(response.json(), indent=2))
+print(response)

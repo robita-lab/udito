@@ -5,6 +5,8 @@
 from ibm_watsonx_ai import APIClient
 from ibm_watsonx_ai import Credentials
 from ibm_watsonx_ai.foundation_models import ModelInference
+from ibm_watsonx_ai.metanames import GenTextParamsMetaNames as GenParams
+from ibm_watsonx_ai.foundation_models.utils.enums import DecodingMethods
 
 import json
 
@@ -15,25 +17,14 @@ from body_interfaces.msg import DOA
 from body_interfaces.msg import Speech2Text
 from body_interfaces.srv import Text2Speech
 from body_interfaces.srv import ComActMsg
+import sys 
+sys.path.append("/home/udito/OneDrive/UDITO/udito/src/audio")
+from watsonAPI import Watson
 
 class DMS(Node):
-    api_key = "TP8qCL22zUpXkw2mHMtoAwJJZqM9ZBzKSwV_kPR60E0S"  # la de tu servicio watsonx.ai
-    project_id = "b65c1eaa-91ac-4520-9a79-ce25df3876a0"  # el ID del proyecto watsonx que creaste
-    region = "eu-de"
     def __init__(self):
         super().__init__('dms_node')
-        creds = Credentials(
-            url=f"https://{self.region}.ml.cloud.ibm.com",
-            api_key=self.api_key
-        )
-        self.client = APIClient(creds)
-
-        self.model = ModelInference(
-            model_id="meta-llama/llama-3-3-70b-instruct",
-            credentials=creds,
-            project_id=self.project_id
-        )
-        self.prompt = "Responde siempre en castellano y devuelve SOLO las dos primeras frases"
+        self.watson = Watson()
 
         self.stt_sub = self.create_subscription(
             Speech2Text,
@@ -41,12 +32,19 @@ class DMS(Node):
             self.stt_callback,
             10)
 
+        self.doa_sub = self.create_subscription(
+            DOA,
+            'doa_topic',
+            self.doa_callback,
+            10)
+
         self.cli = self.create_client(ComActMsg, 'com_act_server')
         while not self.cli.wait_for_service(timeout_sec=1.0):
             self.get_logger().info('service not available, waiting again...')
         self.req = ComActMsg.Request()
 
-    def send_request(self, text, gesture, gesture_parameter):
+    def send_request(self, text, gesture, gesture_parameter, cmd = "speak"):
+        self.req.cmd = cmd
         self.req.text = text
         self.req.gesture = gesture
         self.req.data = gesture_parameter
@@ -60,32 +58,24 @@ class DMS(Node):
             self.get_logger().error(f'Error al llamar al servicio: {e}')
 
     def stt_callback(self,msg):
-        self.get_logger().info('text: %s, conf: %f' %(msg.text, msg.confidence))
+        self.get_logger().info('received: %s, conf: %f' %(msg.text, msg.confidence))
         # expresion no verbal "pensando..."
-        self.send_request("pensando...", "ANGRY", 7)
-        if msg.confidence > 0.5:
+        if msg.confidence > 0.6:
+            self.send_request("oh", "NEUTRAL", 7, cmd = "speak")
+            self.send_request("e", "BLINK", 10, cmd = "speak")
+            self.send_request("pensando...", "ANGRY", 7, cmd="shut_up")
             self.prompt = msg.text
         else:
+            self.send_request("repítelo", "NEUTRAL", 10)
             self.promt = None
             return 
-        response = self.generate_text(self.prompt)
-        self.get_logger().info('watson says:%s' %response)
-        self.send_request(response, "YES", 7)
+        response = self.watson.generate_text(self.prompt)
+        self.get_logger().info('watson says: %s' %response)
+        self.send_request(response, "NO", 7)
         self.send_request("", "SURPRISED", 10)
 
-    def generate_text(self, prompt):
-        response = self.model.generate_text(
-            prompt = prompt)
-        return response
-#        print(json.dumps(response, indent=2))
-
-
-
-#credentials = Credentials(
-#                   url = "https://eu-de.ml.cloud.ibm.com",
-#                   api_key = "TP8qCL22zUpXkw2mHMtoAwJJZqM9ZBzKSwV_kPR60E0S"
-#                  )
-#
+    def doa_callback(self,msg):
+        self.send_request("si", "LOVE", 10, cmd = "speak")
 
 
 def main():
@@ -98,9 +88,6 @@ def main():
 
     minimal_subscriber.destroy_node()
     rclpy.shutdown()
-
-
-
 
 if __name__ == '__main__':
     main()

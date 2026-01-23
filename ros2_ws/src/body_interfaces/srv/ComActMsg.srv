@@ -1,3 +1,4 @@
+string cmd
 string text
 string gesture
 int64 data

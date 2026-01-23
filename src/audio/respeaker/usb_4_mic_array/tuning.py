@@ -60,7 +60,6 @@ PARAMETERS = {
     'DOAANGLE': (21, 0, 'int', 359, 0, 'ro', 'DOA angle. Current value. Orientation depends on build configuration.')
 }
 
-
 class Tuning:
     TIMEOUT = 100000
 
