@@ -1,5 +1,8 @@
 # README
-# Problemas and solutions
+
+# Repositorio de los Robots Sociales de la UDIT
+
+# Problemas and soluciones
 
 10/03/2025 - ERROR: "No module named 'em'" al hacer colcon build --packages-select tutorial_interfaces
 Solution: https://robotics.stackexchange.com/questions/79663/python-module-empy-missing-tutorials
