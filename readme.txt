@@ -1,10 +1,12 @@
-# README
+# UDITO - a Social Robotics Platform for HRI Researching (UNDER CONSTRUCTION)
+This repository includes the development of robotic skills for HRI research.
 
-# Repositorio de los Robots Sociales de la UDIT
 
-# Problemas and soluciones
 
-10/03/2025 - ERROR: "No module named 'em'" al hacer colcon build --packages-select tutorial_interfaces
+
+## Found Issues
+
+- 10/03/2025 - ERROR: "No module named 'em'" al hacer colcon build --packages-select tutorial_interfaces
 Solution: https://robotics.stackexchange.com/questions/79663/python-module-empy-missing-tutorials
 pip uninstall em
 pip install empy
@@ -16,7 +18,7 @@ pip install empy==3.3.4
 - ERROR: "No module named catkin_pkg"
 pip install catkin_pkg lark
 
-11/03/2025 - Errores varios debido a utilizar ROS con Python3.9.
+- 11/03/2025 - Errores varios debido a utilizar ROS con Python3.9.
 A traves de chatGPT se borra esta versión de Python y se compila todo en 3.10.12
 Algunas cosas que se hicieron:
 Borrar los enlaces simbólidos de python y rehacerlos:
