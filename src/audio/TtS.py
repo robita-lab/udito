@@ -1,6 +1,9 @@
 # requirementes TTS (CoquiTTS)
 # también hace TtS mediante voces de IBM-Watson
 import os
+from pathlib import Path
+
+from dotenv import load_dotenv
 from TTS.api import TTS
 from ibm_watson import TextToSpeechV1
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
@@ -18,6 +21,8 @@ import base64
 import time
 import re
 
+load_dotenv(Path(__file__).resolve().parents[2] / ".env")
+
 RESPEAKER_RATE = 22050 #16000 #coqui 22050, watson 16000
 RESPEAKER_CHANNELS = 6 # change base on firmwares, 1_channel_firmware.bin as 1 or 6_channels_firmware.bin as 6
 RESPEAKER_WIDTH = 2
@@ -26,11 +31,15 @@ CHUNK = 1024
 RECORD_SECONDS = 5
 WAVE_OUTPUT_FILENAME = "output.wav"
 
-# Configuración de autenticación
-api_key = "wFGvz40iMm2kOmhvIAd3TpNcwUcgL8gfrK9agNb9K_TY"
-url = "https://api.au-syd.text-to-speech.watson.cloud.ibm.com/instances/e82b66a7-1179-4249-8b60-4c7003432423"
-print("connecting...")
-authenticator = IAMAuthenticator(api_key)
+# Configuración de autenticación. Claves cargadas desde udito/.env (ver .env.example).
+api_key = os.environ.get("WATSON_TTS_API_KEY", "")
+url = os.environ.get("WATSON_TTS_URL", "")
+if api_key:
+    print("connecting...")
+    authenticator = IAMAuthenticator(api_key)
+else:
+    print("WATSON_TTS_API_KEY no configurado; Watson TTS deshabilitado (usa CoquiTTS).")
+    authenticator = None
 
 class TtS( threading.Thread ):
     def __init__(self, robot_speaking_callback = None):
@@ -57,8 +66,11 @@ class TtS( threading.Thread ):
 #        self.tts_model = None   # Para acelerar el arrancque no carga el modelo local
         self.coqui_rate = self.tts_model.synthesizer.output_sample_rate
 
-        self.tts_watson = TextToSpeechV1(authenticator=authenticator)
-        self.tts_watson.set_service_url(url) 
+        if authenticator is not None:
+            self.tts_watson = TextToSpeechV1(authenticator=authenticator)
+            self.tts_watson.set_service_url(url)
+        else:
+            self.tts_watson = None
 
         self.p = pyaudio.PyAudio()
         self.audio_device = self.p.open(format=pyaudio.paInt16,

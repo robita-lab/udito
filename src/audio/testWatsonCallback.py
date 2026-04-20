@@ -1,11 +1,18 @@
+import os
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).resolve().parents[2] / ".env")
+
 import pyaudio
 import requests
 from ibm_watson import TextToSpeechV1
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 
 # Configurar IBM Watson TTS
-API_KEY = "wFGvz40iMm2kOmhvIAd3TpNcwUcgL8gfrK9agNb9K_TY"
-URL = "https://api.au-syd.text-to-speech.watson.cloud.ibm.com/instances/e82b66a7-1179-4249-8b60-4c7003432423"
+API_KEY = os.environ.get("WATSON_TTS_API_KEY", "")
+URL = os.environ.get("WATSON_TTS_URL", "")
 
 authenticator = IAMAuthenticator(API_KEY)
 tts = TextToSpeechV1(authenticator=authenticator)
@@ -80,8 +87,8 @@ from ibm_watson import TextToSpeechV1
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 
 # Configurar IBM Watson TTS
-API_KEY = "wFGvz40iMm2kOmhvIAd3TpNcwUcgL8gfrK9agNb9K_TY"
-URL = "https://api.au-syd.text-to-speech.watson.cloud.ibm.com/instances/e82b66a7-1179-4249-8b60-4c7003432423"
+API_KEY = os.environ.get("WATSON_TTS_API_KEY", "")
+URL = os.environ.get("WATSON_TTS_URL", "")
 
 authenticator = IAMAuthenticator(API_KEY)
 tts = TextToSpeechV1(authenticator=authenticator)

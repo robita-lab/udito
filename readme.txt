@@ -2,6 +2,20 @@
 This repository includes the development of robotic skills for HRI research.
 
 
+## Credentials / .env
+
+Provider credentials (IBM watsonx.ai, Watson STT/TTS, OpenAI) are loaded at
+runtime from a `.env` file at the repo root. `.env` is git-ignored; see
+`.env.example` for the full list of variables and which code paths use them.
+
+Setup:
+
+    cp .env.example .env
+    # then fill in the values for whichever providers you use.
+
+Keys that were previously hardcoded in source are treated as compromised and
+MUST be rotated in the IBM Cloud / OpenAI consoles before reuse — git history
+still contains them. Only the new, rotated values should be put into `.env`.
 
 
 ## Found Issues

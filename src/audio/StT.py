@@ -10,8 +10,10 @@
 # - whisper modelo local para StT
 # - IBM watson, modelo remoto
 
-import sys 
+import os
+import sys
 from os.path import join, dirname
+from pathlib import Path
 import usb.core
 import usb.util
 import time
@@ -25,16 +27,19 @@ import simpleaudio as sa
 import wave
 import webrtcvad
 import whisper
+from dotenv import load_dotenv
 from ibm_watson import SpeechToTextV1
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 sys.path.insert(0, '..')
+
+load_dotenv(Path(__file__).resolve().parents[2] / ".env")
 
 from audio.Respeaker import RespeakerInterface
 from audio.respeaker.usb_4_mic_array.tuning import Tuning
 
 class StT:
-    WATSON_API_KEY = "GcPMqCjN5je8m_Ef62KZNEm2xjnuyWaIEBtGuN-bFdvk"
-    WATSON_URL = "https://api.eu-gb.speech-to-text.watson.cloud.ibm.com/instances/09491bf9-4163-452c-9671-35a92c0ff521"
+    WATSON_API_KEY = os.environ.get("WATSON_STT_API_KEY", "")
+    WATSON_URL = os.environ.get("WATSON_STT_URL", "")
     FORMAT = pyaudio.paInt16  # Formato de audio
     WIDTH = 2
     CHANNELS = 1              # Audio mono

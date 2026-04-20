@@ -1,3 +1,4 @@
+import os
 <<<<<<< HEAD
 import sounddevice as sd
 import websocket
@@ -14,7 +15,7 @@ RATE = 16000  # Frecuencia compatible con Watson
 
 print("test TtS Watson")
 # Credenciales de IBM Watson
-apikey="wFGvz40iMm2kOmhvIAd3TpNcwUcgL8gfrK9agNb9K_TY"
+apikey=os.environ.get("WATSON_TTS_API_KEY", "")
 #url = "https://api.au-syd.text-to-speech.watson.cloud.ibm.com/instances/e82b66a7-1179-4249-8b60-4c7003432423"
 #url = 'wss://api.us-south.text-to-speech.watson.cloud.ibm.com/v1/synthesize'
 #wss://api.{location}.text-to-speech.watson.cloud.ibm.com/instances/{instance_id}/v1/synthesize
@@ -98,7 +99,7 @@ RATE = 16000  # Frecuencia compatible con Watson
 
 print("test TtS Watson")
 # Credenciales de IBM Watson
-apikey="wFGvz40iMm2kOmhvIAd3TpNcwUcgL8gfrK9agNb9K_TY"
+apikey=os.environ.get("WATSON_TTS_API_KEY", "")
 #url = "https://api.au-syd.text-to-speech.watson.cloud.ibm.com/instances/e82b66a7-1179-4249-8b60-4c7003432423"
 #url = 'wss://api.us-south.text-to-speech.watson.cloud.ibm.com/v1/synthesize'
 #wss://api.{location}.text-to-speech.watson.cloud.ibm.com/instances/{instance_id}/v1/synthesize

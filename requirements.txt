@@ -62,3 +62,9 @@ TTS
 whisper
 pyserial
 easing_functions
+# Credentials / config loading from udito/.env (never commit .env itself).
+python-dotenv>=1.0
+# IBM watsonx.ai / Watson SDKs used by src/audio/*.py
+ibm-watsonx-ai
+ibm-watson
+ibm-cloud-sdk-core

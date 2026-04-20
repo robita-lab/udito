@@ -1,10 +1,11 @@
+import os
 import requests
 import json
 
 url = "https://eu-de.ml.cloud.ibm.com"
 #url = "https://api.eu-gb.assistant.watson.cloud.ibm.com/instances/c867d38d-e863-403a-a256-30943d7ff9ec"
-#api_key = "pQZgtA_rpSex91y4dbSx47HIeebITD9G782UFkxPbMnf"
-api_key = "TP8qCL22zUpXkw2mHMtoAwJJZqM9ZBzKSwV_kPR60E0S"
+#api_key = os.environ.get("WATSONX_API_KEY", "")
+api_key = os.environ.get("WATSONX_API_KEY", "")
 
 headers = {
     "Content-Type": "application/json",

@@ -1,9 +1,10 @@
+import os
 from os.path import join, dirname
 import json
 from ibm_watson import SpeechToTextV1
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 
-apikey = "GcPMqCjN5je8m_Ef62KZNEm2xjnuyWaIEBtGuN-bFdvk"
+apikey = os.environ.get("WATSON_STT_API_KEY", "")
 url = "https://api.eu-gb.speech-to-text.watson.cloud.ibm.com/instances/09491bf9-4163-452c-9671-35a92c0ff521"
 
 authenticator = IAMAuthenticator(apikey)

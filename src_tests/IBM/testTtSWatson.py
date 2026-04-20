@@ -1,3 +1,4 @@
+import os
 # see ibm.github watsonx-ai-python
 # pip install ibm-watson
 # pip install ibm-watson-ai
@@ -6,7 +7,7 @@ import json
 from ibm_watson import TextToSpeechV1
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 
-apikey="wFGvz40iMm2kOmhvIAd3TpNcwUcgL8gfrK9agNb9K_TY"
+apikey=os.environ.get("WATSON_TTS_API_KEY", "")
 url = "https://api.au-syd.text-to-speech.watson.cloud.ibm.com/instances/e82b66a7-1179-4249-8b60-4c7003432423"
 authenticator = IAMAuthenticator(apikey)
 

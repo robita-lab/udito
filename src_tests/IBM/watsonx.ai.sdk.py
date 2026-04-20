@@ -1,3 +1,4 @@
+import os
 #
 # pip install ibm-watsonx-ai
 #
@@ -19,7 +20,7 @@ import json
 
 
 url = "https://eu-de.ml.cloud.ibm.com"
-api_key = "TP8qCL22zUpXkw2mHMtoAwJJZqM9ZBzKSwV_kPR60E0S"  # la de tu servicio watsonx.ai
+api_key = os.environ.get("WATSONX_API_KEY", "")  # la de tu servicio watsonx.ai
 project_id = "b65c1eaa-91ac-4520-9a79-ce25df3876a0"  # el ID del proyecto watsonx que creaste
 region = "eu-de"
 model_id = "ibm/granite-4-h-small"

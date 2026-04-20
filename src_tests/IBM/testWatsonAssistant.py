@@ -1,8 +1,9 @@
+import os
 import json
 from ibm_watson import AssistantV2
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 
-apikey="1tjPwOo-HgfH0TMjk6kdbEE2MryUDLaWLde4z8MqA1mQ"
+apikey=os.environ.get("WATSON_ASSISTANT_API_KEY", "")
 url = "https://api.eu-gb.assistant.watson.cloud.ibm.com/instances/c867d38d-e863-403a-a256-30943d7ff9ec"
 
 

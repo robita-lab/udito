@@ -14,3 +14,8 @@ ros2_ws/install
 ros2_ws/log
 ros2_ws/utterance.wav
 *utterance.wav
+
+# Secrets — never commit .env; see .env.example for the variables.
+.env
+.env.*
+!.env.example

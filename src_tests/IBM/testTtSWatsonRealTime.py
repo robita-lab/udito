@@ -1,3 +1,4 @@
+import os
 <<<<<<< HEAD
 from ibm_watson import TextToSpeechV1
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
@@ -14,7 +15,7 @@ RECORD_SECONDS = 5
 WAVE_OUTPUT_FILENAME = "output.wav"
 
 # Configuración de autenticación
-api_key = "wFGvz40iMm2kOmhvIAd3TpNcwUcgL8gfrK9agNb9K_TY"
+api_key = os.environ.get("WATSON_TTS_API_KEY", "")
 url = "https://api.au-syd.text-to-speech.watson.cloud.ibm.com/instances/e82b66a7-1179-4249-8b60-4c7003432423"
 print("connecting...")
 authenticator = IAMAuthenticator(api_key)
@@ -73,7 +74,7 @@ RECORD_SECONDS = 5
 WAVE_OUTPUT_FILENAME = "output.wav"
 
 # Configuración de autenticación
-api_key = "wFGvz40iMm2kOmhvIAd3TpNcwUcgL8gfrK9agNb9K_TY"
+api_key = os.environ.get("WATSON_TTS_API_KEY", "")
 url = "https://api.au-syd.text-to-speech.watson.cloud.ibm.com/instances/e82b66a7-1179-4249-8b60-4c7003432423"
 print("connecting...")
 authenticator = IAMAuthenticator(api_key)

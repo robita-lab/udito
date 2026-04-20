@@ -1,26 +1,44 @@
 #
 # Interfaz de conexión con el sistema watson assistant de IBM
 #
+# pip install ibm-watsonx-ai python-dotenv
 #
-# pip install ibm-watsonx-ai
+# Credentials are read from environment variables (load from `udito/.env` via
+# python-dotenv). See `.env.example` for the variables this expects.
 #
 
+import json
+import os
+from pathlib import Path
+
+from dotenv import load_dotenv
 from ibm_watsonx_ai import APIClient
 from ibm_watsonx_ai import Credentials
 from ibm_watsonx_ai.foundation_models import ModelInference
 from ibm_watsonx_ai.metanames import GenTextParamsMetaNames as GenParams
 from ibm_watsonx_ai.foundation_models.utils.enums import DecodingMethods
 
-import json
+_UDITO_ROOT = Path(__file__).resolve().parents[2]
+load_dotenv(_UDITO_ROOT / ".env")
 
-class Watson():    
-    def __init__(self, result_callback = None):      
+
+def _require_env(name: str) -> str:
+    value = os.environ.get(name)
+    if not value:
+        raise RuntimeError(
+            f"Missing required environment variable {name!r}. "
+            f"Create {_UDITO_ROOT}/.env (see .env.example) or export it before launching."
+        )
+    return value
+
+
+class Watson():
+    def __init__(self, result_callback = None):
         print("Watson::ctor")
-        url = "https://eu-de.ml.cloud.ibm.com"        
-#        api_key = "TP8qCL22zUpXkw2mHMtoAwJJZqM9ZBzKSwV_kPR60E0S"  # la de tu servicio watsonx.ai
-        api_key = "W4Lj_7EVx2wnLJU-rAMWVbpFltJfT3k-HtbeA-FnCD_l"  # la de tu servicio watsonx.ai
-        self.project_id = "adc42d4e-54a7-450d-893a-09e07d3c90df"  # el ID del proyecto watsonx que creaste
-        region = "eu-de"
+        url = os.environ.get("WATSONX_URL", "https://eu-de.ml.cloud.ibm.com")
+        api_key = _require_env("WATSONX_API_KEY")
+        self.project_id = _require_env("WATSONX_PROJECT_ID")
+        region = os.environ.get("WATSONX_REGION", "eu-de")
         model_id = "ibm/granite-4-h-small"
         #    model_id = client.foundation_models.TextModels.FLAN_T5_XXL,
         #    model_id="ibm/granite-3-8b-instruct",
